@@ -256,6 +256,7 @@ server.tool(
       .optional()
       .describe("The ID of the project (if moving between projects)"),
     name: z.string().optional().describe("The name of the card"),
+    type: z.enum(["project", "task"]).optional().describe("The type of the card (project or task, defaults to project)"),
     description: z.string().optional().describe("The description of the card"),
     position: z.number().optional().describe("The position of the card"),
     dueDate: z
@@ -297,6 +298,7 @@ server.tool(
         result = await cards.createCard({
           listId: args.listId,
           name: args.name,
+          type: args.type || "project",
           description: args.description || "",
           position: args.position || 0,
         });
@@ -357,6 +359,7 @@ server.tool(
         result = await createCardWithTasks({
           listId: args.listId,
           name: args.name,
+          type: args.type || "project",
           description: args.description,
           tasks: args.tasks,
           comment: args.comment,

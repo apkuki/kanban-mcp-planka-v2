@@ -56,6 +56,7 @@ export const PlankaCardSchema = z.object({
   id: z.string(),
   listId: z.string(),
   name: z.string(),
+  type: z.enum(["project", "task"]).optional(),
   description: z.string().nullable(),
   position: z.number(),
   dueDate: z.string().nullable(),
