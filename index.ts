@@ -559,7 +559,7 @@ server.tool(
 // 6. Task Manager
 server.tool(
   "mcp_kanban_task_manager",
-  "Manage kanban tasks with various operations",
+  "Manage kanban task lists and tasks with various operations",
   {
     action: z
       .enum([
@@ -570,26 +570,28 @@ server.tool(
         "update",
         "delete",
         "complete_task",
+        "create_tasklist_with_tasks",
       ])
       .describe("The action to perform"),
-    id: z.string().optional().describe("The ID of the task"),
+    id: z.string().optional().describe("The ID of the task or task list"),
     cardId: z.string().optional().describe("The ID of the card"),
-    name: z.string().optional().describe("The name of the task"),
+    name: z.string().optional().describe("The name of the task or task list"),
     isCompleted: z
       .boolean()
       .optional()
       .describe("Whether the task is completed"),
-    position: z.number().optional().describe("The position of the task"),
+    position: z.number().optional().describe("The position of the task or task list"),
     tasks: z
       .array(
         z.object({
-          cardId: z.string().describe("The ID of the card for this task"),
+          cardId: z.string().optional().describe("The ID of the card (for batch_create)"),
           name: z.string().describe("The name of this task"),
           position: z.number().optional().describe("The position of this task"),
+          isCompleted: z.boolean().optional().describe("Whether the task is completed"),
         })
       )
       .optional()
-      .describe("Array of tasks to create in batch"),
+      .describe("Array of tasks to create"),
   },
   async (args) => {
     let result;
@@ -614,7 +616,17 @@ server.tool(
       case "batch_create":
         if (!args.tasks || args.tasks.length === 0)
           throw new Error("tasks array is required for batch_create action");
-        result = await tasks.batchCreateTasks({ tasks: args.tasks });
+        result = await tasks.batchCreateTasks({ tasks: args.tasks as any });
+        break;
+
+      case "create_tasklist_with_tasks":
+        if (!args.cardId || !args.name || !args.tasks)
+          throw new Error("cardId, name, and tasks are required for create_tasklist_with_tasks action");
+        result = await tasks.createTaskListWithTasks({
+          cardId: args.cardId,
+          name: args.name,
+          tasks: args.tasks,
+        });
         break;
 
       case "get_one":
@@ -688,8 +700,9 @@ server.tool(
         break;
 
       case "get_one":
-        if (!args.id) throw new Error("id is required for get_one action");
-        result = await comments.getComment(args.id);
+        if (!args.id || !args.cardId) 
+          throw new Error("id and cardId are required for get_one action");
+        result = await comments.getComment(args.id, args.cardId);
         break;
 
       case "update":
