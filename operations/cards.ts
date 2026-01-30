@@ -21,6 +21,7 @@ import { PlankaCardSchema, PlankaStopwatchSchema } from "../common/types.js";
 export const CreateCardSchema = z.object({
     listId: z.string().describe("List ID"),
     name: z.string().describe("Card name"),
+    type: z.enum(["project", "task"]).default("project").describe("Card type (project or task)"),
     description: z.string().optional().describe("Card description"),
     position: z.number().optional().describe("Card position (default: 65535)"),
 });
@@ -142,6 +143,7 @@ export async function createCard(options: CreateCardOptions) {
                 method: "POST",
                 body: {
                     name: options.name,
+                    type: options.type || "project",
                     description: options.description,
                     position: options.position,
                 },
@@ -344,6 +346,7 @@ export async function duplicateCard(id: string, position?: number) {
         const newCard = await createCard({
             listId,
             name: cardName,
+            type: originalCard.type || "project",
             description: originalCard.description || "",
             position: position || 65535,
         });
