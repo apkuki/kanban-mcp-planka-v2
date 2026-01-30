@@ -1,162 +1,384 @@
-# 🔄 Kanban MCP
+# Kanban MCP for Planka 2.x
 
-Welcome to the Kanban MCP project! 🎉 This project integrates Planka kanban boards with Cursor's Machine Control Protocol (MCP) to enable AI assistants like Claude to manage your kanban boards.
+> **Model Context Protocol (MCP) server for Planka 2.0.0-rc.4 and later**
 
-## 🤔 What is Kanban MCP?
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Kanban MCP is a bridge between [Planka](https://planka.app/) (an open-source kanban board) and [Cursor](https://cursor.sh/)'s Machine Control Protocol. It allows AI assistants like Claude to:
+## ⚠️ Version Compatibility
 
-- 📋 View and manage projects, boards, lists, and cards
-- ✅ Create and update tasks
-- 💬 Add comments to cards
-- 🔄 Move cards between lists
-- ⏱️ Track time spent on tasks
-- 🚀 And much more!
+This MCP server is specifically designed for **Planka 2.0.0-rc.4 and later versions**.
 
-This integration enables a seamless workflow where you can ask Claude to help manage your development tasks, track progress, and organize your work.
+| Planka Version | Compatible MCP Repository |
+|----------------|---------------------------|
+| **2.0.0-rc.4+** | **This repository** ([apkuki/kanban-mcp-planka-v2](https://github.com/apkuki/kanban-mcp-planka-v2)) |
+| 1.x | [bradrisse/kanban-mcp](https://github.com/bradrisse/kanban-mcp) (original) |
 
-## 🚦 Quick Start
+**Why a separate repo?** Planka 2.0 introduced significant API changes that are incompatible with version 1.x. Rather than breaking the original MCP for existing users, this fork maintains compatibility with Planka 2.x.
 
-### 📋 Prerequisites
+---
 
-- 🐳 [Docker](https://www.docker.com/get-started) for running Planka
-- 🔄 [Git](https://git-scm.com/downloads) for cloning the repository
-- 🟢 [Node.js](https://nodejs.org/) (version 18 or above) and npm for development
+## 🎯 Features
 
-### 📥 Installation
+### Core Functionality
+- ✅ **Projects & Boards** - Full CRUD operations
+- ✅ **Lists** - Create, read, update, delete board lists
+- ✅ **Cards** - Complete card management with all metadata
+- ✅ **Task Lists & Tasks** - Create checklists with checkbox items
+- ✅ **Comments** - Add, update, delete card comments
+- ✅ **Labels** - Full label management with 25 color options
+- ✅ **Board Memberships** - Manage user access to boards
+- ✅ **Stopwatch** - Time tracking on cards
 
-1. Clone this repository:
-```bash
-git clone https://github.com/bradrisse/kanban-mcp.git
-cd kanban-mcp
-```
+### Enhanced Features
+- 🆕 **Batch Operations** - Create multiple items in one call
+- 🆕 **Task List with Tasks** - Create checklists with items in one operation
+- 🆕 **Board Summaries** - Get comprehensive board overviews
+- 🆕 **Card Details** - Fetch complete card information with related data
 
-2. Install dependencies and build the TypeScript code:
-```bash
-npm install
-npm run build
-```
+---
 
-3. Start the Planka containers:
-```bash
-npm run up
-```
+## 🚀 Installation
 
-4. Access the Planka Kanban board:
-   - Default URL: http://localhost:3333
-   - Default credentials: 
-     - Email: demo@demo.demo
-     - Password: demo
+### Prerequisites
+- Node.js 18+ or Bun
+- A running Planka 2.0.0-rc.4+ instance
+- Planka API token (Bearer token)
 
-5. Configure Cursor to use the MCP server:
-   - In Cursor, go to Settings > Features > MCP
-   - Add a new MCP server with the following configuration:
+### Setup
+
+1. **Clone this repository:**
+   ```bash
+   git clone https://github.com/apkuki/kanban-mcp-planka-v2.git
+   cd kanban-mcp-planka-v2
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   # or
+   bun install
+   ```
+
+3. **Configure environment variables:**
+   
+   Create a `.env` file in the project root:
+   ```env
+   PLANKA_URL=https://your-planka-instance.com
+   PLANKA_TOKEN=your_bearer_token_here
+   ```
+
+4. **Build the MCP server:**
+   ```bash
+   npm run build
+   ```
+
+5. **Add to your MCP client configuration:**
+
+   For **Claude Desktop** (`claude_desktop_config.json`):
    ```json
    {
      "mcpServers": {
-       "kanban": {
+       "kanban-planka-v2": {
          "command": "node",
-         "args": ["/path/to/kanban-mcp/dist/index.js"],
+         "args": ["/absolute/path/to/kanban-mcp-planka-v2/dist/index.js"],
          "env": {
-           "PLANKA_BASE_URL": "http://localhost:3333",
-           "PLANKA_AGENT_EMAIL": "demo@demo.demo",
-           "PLANKA_AGENT_PASSWORD": "demo"
+           "PLANKA_URL": "https://your-planka-instance.com",
+           "PLANKA_TOKEN": "your_bearer_token_here"
          }
        }
      }
    }
    ```
-   - Replace `/path/to/kanban-mcp` with the actual absolute path to your kanban-mcp directory
 
-Alternatively, you can use a project-specific configuration by creating a `.cursor/mcp.json` file in your project root with the same configuration.
+   For **Cursor** (`.cursorrules` or settings):
+   ```json
+   {
+     "mcp": {
+       "servers": {
+         "kanban-planka-v2": {
+           "command": "node",
+           "args": ["C:\\path\\to\\kanban-mcp-planka-v2\\dist\\index.js"],
+           "env": {
+             "PLANKA_URL": "https://your-planka-instance.com",
+             "PLANKA_TOKEN": "your_bearer_token_here"
+           }
+         }
+       }
+     }
+   }
+   ```
 
-For Docker-based deployment and other advanced options, see the [Installation Guide](https://github.com/bradrisse/kanban-mcp/wiki/Installation-Guide).
+6. **Restart your MCP client** to load the server.
 
-## 📚 Documentation
+---
 
-### For Users
+## 📚 Usage Examples
 
-- [🛠️ Installation Guide](https://github.com/bradrisse/kanban-mcp/wiki/Installation-Guide): How to install and configure Kanban MCP
-- [📝 Usage Guide](https://github.com/bradrisse/kanban-mcp/wiki/Usage-Guide): How to use Kanban MCP with Claude
-- [💡 Capabilities and Strategies](https://github.com/bradrisse/kanban-mcp/wiki/Capabilities-and-Strategies): Detailed exploration of MCP server capabilities and LLM interaction strategies
-- [⚠️ Troubleshooting](https://github.com/bradrisse/kanban-mcp/wiki/Troubleshooting): Solutions to common issues
+### Task Lists (Checklists)
 
-### For Developers
+```typescript
+// Create a checklist with tasks in one operation
+kanban-mcp_kanban_task_manager({
+  action: "create_tasklist_with_tasks",
+  cardId: "card_id_here",
+  name: "Testing Checklist",
+  tasks: [
+    { name: "□ Run unit tests" },
+    { name: "□ Run integration tests" },
+    { name: "□ Update documentation" }
+  ]
+})
 
-- [👨‍💻 Developer Guide](https://github.com/bradrisse/kanban-mcp/wiki/Developer-Guide): Information for developers who want to contribute to or modify Kanban MCP
-- [📖 API Reference](https://github.com/bradrisse/kanban-mcp/wiki/API-Reference): Detailed documentation of the MCP commands and Planka API integration
+// Get all task lists for a card
+kanban-mcp_kanban_task_manager({
+  action: "get_all",
+  cardId: "card_id_here"
+})
+```
 
-## ✨ Features
+### Comments
 
-Kanban MCP provides a comprehensive set of features for managing your kanban boards:
+```typescript
+// Create a comment
+kanban-mcp_kanban_comment_manager({
+  action: "create",
+  cardId: "card_id_here",
+  text: "Implementation complete, ready for review"
+})
 
-### 📂 Project Management
-- Create and view projects
-- Manage project settings and members
+// Get all comments
+kanban-mcp_kanban_comment_manager({
+  action: "get_all",
+  cardId: "card_id_here"
+})
+```
 
-### 📊 Board Management
-- Create and view boards within projects
-- Customize board settings
+### Cards
 
-### 📋 List Management
-- Create and organize lists within boards
-- Reorder lists as needed
+```typescript
+// Create a card
+kanban-mcp_kanban_card_manager({
+  action: "create",
+  listId: "list_id_here",
+  name: "New Feature",
+  description: "Implement new feature X"
+})
 
-### 🗂️ Card Management
-- Create, update, and delete cards
-- Move cards between lists
-- Add descriptions, due dates, and labels
-- Duplicate cards to create templates
+// Get card details with related data
+kanban-mcp_kanban_card_manager({
+  action: "get_details",
+  cardId: "card_id_here"
+})
+```
 
-### ⏱️ Time Tracking
-- Start, stop, and reset stopwatches
-- Track time spent on individual tasks
-- Analyze time usage patterns
+### Labels
 
-### ✅ Task Management
-- Create and manage tasks within cards
-- Mark tasks as complete or incomplete
+```typescript
+// Add label to card
+kanban-mcp_kanban_label_manager({
+  action: "add_to_card",
+  cardId: "card_id_here",
+  labelId: "label_id_here"
+})
+```
 
-### 💬 Comment Management
-- Add comments to cards for discussion
-- View comment history
+---
 
-## 🤖 LLM Interaction Strategies
+## 🔧 Available Tools
 
-MCP Kanban supports several workflow strategies for LLM-human collaboration:
+| Tool | Description |
+|------|-------------|
+| `mcp_kanban_project_board_manager` | Manage projects and boards |
+| `mcp_kanban_list_manager` | Manage board lists |
+| `mcp_kanban_card_manager` | Manage cards |
+| `mcp_kanban_task_manager` | Manage task lists and tasks |
+| `mcp_kanban_label_manager` | Manage labels |
+| `mcp_kanban_comment_manager` | Manage card comments |
+| `mcp_kanban_membership_manager` | Manage board memberships |
+| `mcp_kanban_stopwatch` | Track time on cards |
 
-1. **🤝 LLM-Driven Development with Human Review**: LLMs implement tasks while humans review and provide feedback
-2. **👥 Human-Driven Development with LLM Support**: Humans implement while LLMs provide analysis and recommendations
-3. **🧠 Collaborative Grooming and Planning**: Humans and LLMs work together to plan and organize tasks
+---
 
-For more details on these strategies, see the [Capabilities and Strategies](https://github.com/bradrisse/kanban-mcp/wiki/Capabilities-and-Strategies) wiki page.
+## 📝 What's New in This Version?
 
-## 📦 Available npm Scripts
+### Planka 2.0 API Compatibility (2026-01-30)
 
-- `npm run build`: Build the TypeScript code
-- `npm run build-docker`: Build the TypeScript code and create a Docker image
-- `npm run up`: Start the Planka containers (kanban and postgres)
-- `npm run down`: Stop all containers
-- `npm run restart`: Restart the Planka containers
-- `npm run start-node`: Start the MCP server directly with Node (for testing outside of Cursor)
-- `npm run qc`: Run quality control checks (linting and type checking)
+**Fixed Issues:**
+- ✅ Updated task lists endpoints (`/api/cards/:cardId/task-lists`)
+- ✅ Added support for individual tasks within task lists (`/api/task-lists/:taskListId/tasks`)
+- ✅ Fixed comments endpoints (`/api/cards/:cardId/comments` instead of `/comment-actions`)
+- ✅ All API endpoints verified against Planka 2.0.0-rc.4 routes
+
+**New Features:**
+- 🆕 `create_tasklist_with_tasks` - Create checklist with items in one call
+- 🆕 Individual task management functions
+- 🆕 Simplified comment operations
+- 🆕 Comprehensive documentation
+
+**Breaking Changes from Original:**
+- Task list creation now correctly uses `/task-lists` endpoint
+- Comments require `cardId` for retrieval
+- All endpoints updated to match Planka 2.0 API structure
+
+---
+
+## 🏗️ Architecture
+
+### Planka 2.0 Data Model
+
+```
+Project
+  └── Board
+      ├── List
+      │   └── Card
+      │       ├── Task List (Checklist)
+      │       │   └── Task (Checkbox item)
+      │       ├── Comment
+      │       ├── Label
+      │       ├── Attachment
+      │       └── Card Membership
+      ├── Label
+      └── Board Membership
+```
+
+### Key Concepts
+
+**Task Lists vs Tasks:**
+- **Task List** = A checklist on a card (e.g., "Testing Checklist")
+- **Task** = An individual checkbox item within a task list (e.g., "✓ Run tests")
+
+**Comments vs Actions:**
+- **Comments** = User-created comments on cards
+- **Actions** = Activity log (includes comments + system events)
+
+---
+
+## 🧪 Development
+
+### Running Tests
+```bash
+npm test
+```
+
+### Building
+```bash
+npm run build
+```
+
+### Development Mode
+```bash
+npm run dev
+```
+
+---
+
+## 🐛 Troubleshooting
+
+### "Resource not found" errors
+- Ensure your Planka instance is version 2.0.0-rc.4 or later
+- Verify your PLANKA_TOKEN has the correct permissions
+- Check that PLANKA_URL doesn't have a trailing slash
+
+### Task lists not working
+- This is a Planka 2.0 feature - won't work on Planka 1.x
+- Ensure you're using the correct cardId
+
+### Comments returning empty
+- Make sure you're using `/api/cards/:cardId/comments` endpoint
+- Check that the card actually has comments
+
+---
+
+## 📋 API Endpoint Reference
+
+### Planka 2.0.0-rc.4 Endpoints Used
+
+```
+# Projects & Boards
+GET    /api/projects
+POST   /api/projects/:projectId/boards
+GET    /api/boards/:id
+
+# Lists & Cards
+POST   /api/boards/:boardId/lists
+POST   /api/lists/:listId/cards
+GET    /api/cards/:id
+
+# Task Lists & Tasks
+POST   /api/cards/:cardId/task-lists
+POST   /api/task-lists/:taskListId/tasks
+PATCH  /api/task-lists/:id
+PATCH  /api/tasks/:id
+
+# Comments
+GET    /api/cards/:cardId/comments
+POST   /api/cards/:cardId/comments
+PATCH  /api/comments/:id
+
+# Labels
+POST   /api/boards/:boardId/labels
+POST   /api/cards/:cardId/card-labels
+DELETE /api/cards/:cardId/card-labels/labelId::labelId
+
+# Memberships
+POST   /api/boards/:boardId/board-memberships
+PATCH  /api/board-memberships/:id
+```
+
+**Official Planka API Documentation:** https://plankanban.github.io/planka/swagger-ui/
+
+---
 
 ## 🤝 Contributing
 
-We welcome contributions to Kanban MCP! If you'd like to contribute:
+Contributions are welcome! Please:
 
-1. Check out the [Developer Guide](https://github.com/bradrisse/kanban-mcp/wiki/Developer-Guide) for information on the project structure and development workflow
-2. Look at the [open issues](https://github.com/bradrisse/kanban-mcp/issues) for tasks that need help
-3. Submit a pull request with your changes
+1. Fork this repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
-## 🆘 Support
+### Guidelines
+- Ensure all endpoints match Planka 2.0+ API
+- Add tests for new features
+- Update documentation
+- Follow existing code style
 
-If you need help with Kanban MCP:
-
-1. Check the [Troubleshooting](https://github.com/bradrisse/kanban-mcp/wiki/Troubleshooting) page for solutions to common issues
-2. Search the [GitHub issues](https://github.com/bradrisse/kanban-mcp/issues) to see if your problem has been reported
-3. Open a new issue if you can't find a solution
+---
 
 ## 📜 License
 
-Kanban MCP is open-source software licensed under the MIT License. See the [LICENSE](https://github.com/bradrisse/kanban-mcp/blob/main/LICENSE) file for details. 
+MIT License - see [LICENSE](LICENSE) file for details
+
+---
+
+## 🙏 Credits
+
+- **Original MCP Server:** [bradrisse/kanban-mcp](https://github.com/bradrisse/kanban-mcp)
+- **Planka Project:** [plankanban/planka](https://github.com/plankanban/planka)
+- **Planka 2.0 Compatibility:** Updates by [@apkuki](https://github.com/apkuki)
+
+---
+
+## 📞 Support
+
+- **Issues:** [GitHub Issues](https://github.com/apkuki/kanban-mcp-planka-v2/issues)
+- **Planka Discord:** [Join the community](https://discord.gg/planka)
+- **Documentation:** See the [wiki](https://github.com/apkuki/kanban-mcp-planka-v2/wiki)
+
+---
+
+## 🗺️ Roadmap
+
+- [ ] Add attachment support (file uploads)
+- [ ] Add custom fields support
+- [ ] Add card duplication
+- [ ] Add notification management
+- [ ] Improve error handling and retries
+- [ ] Add rate limiting for API calls
+- [ ] Add caching layer for performance
+
+---
+
+**Made with ❤️ for the Planka community**
