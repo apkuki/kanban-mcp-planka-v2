@@ -41,38 +41,24 @@ This MCP server is specifically designed for **Planka 2.0.0-rc.4 and later versi
 
 ### Prerequisites
 - Node.js 18+ or Bun
-- A running Planka 2.0.0-rc.4+ instance
-- Planka API token (Bearer token)
+- Docker (if running Planka locally)
+- A Planka 2.0.0-rc.4+ instance (either existing or new)
 
-### Setup
+---
 
-1. **Clone this repository:**
+### Option A: Connect to Existing Planka Instance
+
+**Use this if you already have Planka running** (e.g., on a server or different machine).
+
+1. **Clone and build:**
    ```bash
    git clone https://github.com/apkuki/kanban-mcp-planka-v2.git
    cd kanban-mcp-planka-v2
-   ```
-
-2. **Install dependencies:**
-   ```bash
    npm install
-   # or
-   bun install
-   ```
-
-3. **Configure environment variables:**
-   
-   Create a `.env` file in the project root:
-   ```env
-   PLANKA_URL=https://your-planka-instance.com
-   PLANKA_TOKEN=your_bearer_token_here
-   ```
-
-4. **Build the MCP server:**
-   ```bash
    npm run build
    ```
 
-5. **Add to your MCP client configuration:**
+2. **Configure your MCP client:**
 
    For **Claude Desktop** (`claude_desktop_config.json`):
    ```json
@@ -82,33 +68,141 @@ This MCP server is specifically designed for **Planka 2.0.0-rc.4 and later versi
          "command": "node",
          "args": ["/absolute/path/to/kanban-mcp-planka-v2/dist/index.js"],
          "env": {
-           "PLANKA_URL": "https://your-planka-instance.com",
-           "PLANKA_TOKEN": "your_bearer_token_here"
+           "PLANKA_BASE_URL": "http://localhost:3333",
+           "PLANKA_AGENT_EMAIL": "your-email@example.com",
+           "PLANKA_AGENT_PASSWORD": "your-password"
          }
        }
      }
    }
    ```
+   
+   **Replace values:**
+   - Path: Your actual path to the `dist/index.js` file
+   - URL: `http://localhost:3333` for local Planka, or your server URL (e.g., `https://planka.yourcompany.com`)
+   - Email/Password: Credentials of an existing Planka user
 
-   For **Cursor** (`.cursorrules` or settings):
+   For **Cursor** (`.cursor/mcp.json` or global settings):
    ```json
    {
-     "mcp": {
-       "servers": {
-         "kanban-planka-v2": {
-           "command": "node",
-           "args": ["C:\\path\\to\\kanban-mcp-planka-v2\\dist\\index.js"],
-           "env": {
-             "PLANKA_URL": "https://your-planka-instance.com",
-             "PLANKA_TOKEN": "your_bearer_token_here"
-           }
+     "mcpServers": {
+       "kanban-planka-v2": {
+         "command": "node",
+         "args": ["/absolute/path/to/kanban-mcp-planka-v2/dist/index.js"],
+         "env": {
+           "PLANKA_BASE_URL": "http://localhost:3333",
+           "PLANKA_AGENT_EMAIL": "your-email@example.com",
+           "PLANKA_AGENT_PASSWORD": "your-password"
+         }
+       }
+     }
+   }
+   ```
+   
+   **Note:** On Windows, use forward slashes `/` in the path, or escape backslashes like `C:\\path\\to\\file.js`
+
+   For **GitHub Copilot CLI** (`~/.mcp/mcp-config.json`):
+   ```json
+   {
+     "mcpServers": {
+       "kanban-planka-v2": {
+         "command": "node",
+         "args": ["/absolute/path/to/kanban-mcp-planka-v2/dist/index.js"],
+         "env": {
+           "PLANKA_BASE_URL": "http://localhost:3333",
+           "PLANKA_AGENT_EMAIL": "your-email@example.com",
+           "PLANKA_AGENT_PASSWORD": "your-password"
          }
        }
      }
    }
    ```
 
-6. **Restart your MCP client** to load the server.
+3. **Restart your MCP client** to load the server.
+
+---
+
+### Option B: Run Planka + MCP Together (Docker)
+
+**Use this if you want to run Planka locally** in Docker alongside the MCP server.
+
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/apkuki/kanban-mcp-planka-v2.git
+   cd kanban-mcp-planka-v2
+   npm install
+   ```
+
+2. **Configure environment variables:**
+   
+   Edit the `.env` file in the project root:
+   ```env
+   # Planka Configuration
+   PLANKA_PORT=3333
+   BASE_URL=http://localhost:3333
+   SECRET_KEY=your-secret-key-here
+   
+   # Admin User (created on first run)
+   PLANKA_ADMIN_EMAIL=admin@example.com
+   PLANKA_ADMIN_PASSWORD=your-secure-password
+   PLANKA_ADMIN_NAME=Admin User
+   PLANKA_ADMIN_USERNAME=admin
+   
+   # PostgreSQL Configuration
+   POSTGRES_USER=postgres
+   POSTGRES_PASSWORD=postgres
+   POSTGRES_DB=planka
+   
+   # MCP-Kanban Configuration
+   MCP_KANBAN_PORT=3008
+   PLANKA_BASE_URL=http://planka:${PLANKA_PORT}
+   PLANKA_AGENT_EMAIL=${PLANKA_ADMIN_EMAIL}
+   PLANKA_AGENT_PASSWORD=${PLANKA_ADMIN_PASSWORD}
+   ```
+
+   **Important variables:**
+   - `PLANKA_ADMIN_EMAIL` - The email for your Planka admin user
+   - `PLANKA_ADMIN_PASSWORD` - Password for the admin user
+   - `SECRET_KEY` - Change this to a random string for security
+   - `PLANKA_BASE_URL` - URL where Planka is accessible
+
+3. **Build the MCP server:**
+   ```bash
+   npm run build
+   ```
+
+4. **Start Planka in Docker:**
+   ```bash
+   npm run up
+   # or
+   docker compose up -d
+   ```
+
+5. **Access Planka:**
+   - Open http://localhost:3333 in your browser
+   - Login with the credentials you set in `.env`
+
+6. **Configure your MCP client:**
+
+   Use the same configuration as Option A, but with:
+   ```json
+   "env": {
+     "PLANKA_BASE_URL": "http://localhost:3333",
+     "PLANKA_AGENT_EMAIL": "admin@example.com",
+     "PLANKA_AGENT_PASSWORD": "your-secure-password"
+   }
+   ```
+
+7. **Restart your MCP client.**
+
+---
+
+### 🔑 Authentication Notes
+
+- **PLANKA_BASE_URL**: The base URL of your Planka instance (no trailing slash)
+- **PLANKA_AGENT_EMAIL**: Email of a Planka user (must exist in Planka)
+- **PLANKA_AGENT_PASSWORD**: Password for that user
+- The MCP server logs in as this user and performs all operations on their behalf
 
 ---
 
@@ -512,16 +606,23 @@ npm run dev
 
 ### "Resource not found" errors
 - Ensure your Planka instance is version 2.0.0-rc.4 or later
-- Verify your PLANKA_TOKEN has the correct permissions
-- Check that PLANKA_URL doesn't have a trailing slash
+- Verify `PLANKA_AGENT_EMAIL` and `PLANKA_AGENT_PASSWORD` are correct
+- Check that the user exists in Planka and can login
+- Check that `PLANKA_BASE_URL` doesn't have a trailing slash
 
 ### Task lists not working
 - This is a Planka 2.0 feature - won't work on Planka 1.x
 - Ensure you're using the correct cardId
 
-### Comments returning empty
-- Make sure you're using `/api/cards/:cardId/comments` endpoint
-- Check that the card actually has comments
+### Connection errors
+- Verify `PLANKA_BASE_URL` is accessible from where the MCP server runs
+- If Planka is on `localhost` and MCP is in Docker, use `http://host.docker.internal:3333`
+- Check firewall settings if connecting to remote Planka instance
+
+### Authentication failures
+- Double-check email and password match a valid Planka user
+- Try logging in to Planka web interface with the same credentials
+- Check Planka logs for authentication errors
 
 ---
 
