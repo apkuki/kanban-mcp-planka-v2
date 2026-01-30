@@ -184,6 +184,242 @@ kanban-mcp_kanban_label_manager({
 
 ---
 
+## 🤖 AI-Assisted Workflow Example
+
+This MCP server enables seamless integration with AI assistants like **GitHub Copilot CLI** or **Claude Desktop** for managing your development workflow through Planka.
+
+### Two-Board System: Backlog + Worklog
+
+A proven workflow pattern using two boards to organize issues from planning to completion:
+
+```
+📋 BACKLOG BOARD                        📊 WORKLOG BOARD
+├── Architecture (ARCH-xxx)            ├── Planned (ready to build)
+├── Security (SEC-xxx)                 ├── In Progress (actively working)
+├── Performance (PERF-xxx)             ├── Testing (awaiting verification)
+└── Feature (FEAT-xxx)                 └── Completed (done)
+```
+
+**Labels:**
+- **Priority:** `Critical` (red) | `High` (orange) | `Normal` (yellow)
+- **Status is tracked by board position** (which list the card is in)
+
+---
+
+### Example AI Workflow Instructions
+
+Copy this into your AI assistant's custom instructions (e.g., GitHub Copilot `.github/copilot-instructions.md` or Claude's project instructions):
+
+```markdown
+# Kanban Workflow with MCP
+
+## Board Structure
+- **Backlog Board** (ID: `your_backlog_board_id`)
+  - Lists: Architecture, Security, Performance, Feature
+  - Issues with priority labels only (Critical/High/Normal)
+  
+- **Worklog Board** (ID: `your_worklog_board_id`)
+  - Lists: Planned, In Progress, Testing, Completed
+  - Issues with priority labels (status = which list they're in)
+
+## Workflow Phases
+
+### 1️⃣ Creating New Issues
+When discovering work that needs to be done:
+1. Create card in appropriate Backlog board list (Architecture/Security/Performance/Feature)
+2. Add priority label: Critical/High/Normal
+3. Write brief description of the issue
+4. Get card URL and track in your project documentation
+
+**Example:**
+```javascript
+// Create security issue in Backlog
+kanban-mcp_kanban_card_manager({
+  action: "create",
+  listId: "security_list_id",
+  name: "SEC-001: Missing rate limiting on login endpoint",
+  description: "Login endpoint vulnerable to brute force attacks"
+})
+
+// Add priority label
+kanban-mcp_kanban_label_manager({
+  action: "add_to_card",
+  cardId: "new_card_id",
+  labelId: "critical_label_id"
+})
+```
+
+### 2️⃣ Planning Phase
+When user says "plan issue XYZ":
+1. **Read card fresh** from Planka (user may have edited)
+2. Analyze codebase to understand scope
+3. **Write implementation plan** to card description:
+   ```markdown
+   ## Implementation Plan
+   
+   ### Summary
+   Brief approach overview
+   
+   ### Steps
+   1. Step one with details
+   2. Step two with details
+   
+   ### Files to Modify
+   - `path/to/file.ts` - what changes
+   
+   ### Testing Notes
+   - How to verify
+   ```
+4. **Move card** to Worklog board → "Planned" list
+5. Add comment: "Plan created on {date}"
+
+**Example:**
+```javascript
+// Update card description with plan
+kanban-mcp_kanban_card_manager({
+  action: "update",
+  id: "card_id",
+  description: "## Implementation Plan\n\n### Summary\n..."
+})
+
+// Move to Planned list
+kanban-mcp_kanban_card_manager({
+  action: "move",
+  id: "card_id",
+  listId: "planned_list_id",
+  boardId: "worklog_board_id"
+})
+
+// Add comment
+kanban-mcp_kanban_comment_manager({
+  action: "create",
+  cardId: "card_id",
+  text: "Plan created on 2026-01-30"
+})
+```
+
+### 3️⃣ Implementation Phase
+When user says "build issue XYZ":
+1. **Sync first** - read card fresh from Planka
+2. Move to "In Progress" list
+3. Implement according to plan
+4. Add progress comments as you work
+5. When complete, **move to "Testing" list**
+6. **Create Testing task list** with verification steps
+
+**Example:**
+```javascript
+// Move to In Progress
+kanban-mcp_kanban_card_manager({
+  action: "move",
+  id: "card_id",
+  listId: "in_progress_list_id"
+})
+
+// Add progress comment
+kanban-mcp_kanban_comment_manager({
+  action: "create",
+  cardId: "card_id",
+  text: "✅ Phase 1 complete: Database schema updated"
+})
+
+// When implementation done, move to Testing
+kanban-mcp_kanban_card_manager({
+  action: "move",
+  id: "card_id",
+  listId: "testing_list_id"
+})
+
+// CRITICAL: Add testing checklist
+kanban-mcp_kanban_task_manager({
+  action: "create_tasklist_with_tasks",
+  cardId: "card_id",
+  name: "Testing",
+  tasks: [
+    { name: "Verify feature works as expected" },
+    { name: "Run npm run build (confirm success)" },
+    { name: "Run npm run test (confirm passing)" },
+    { name: "Manual testing of edge cases" },
+    { name: "Verify no regressions" },
+    { name: "Update documentation if needed" }
+  ]
+})
+```
+
+### 4️⃣ Completion Phase
+After user completes testing:
+1. User checks off all testing tasks in Planka
+2. User moves card to "Completed" list
+3. Update project documentation with completion date
+
+---
+
+## Key Rules
+
+### Always Sync Before Working
+**Before starting any work on a card, ALWAYS:**
+- Read the card fresh from Planka (may have been edited)
+- Check current board position (which list it's in)
+- Read all comments for updates
+
+### Two-Level Task Hierarchy
+- **Task List** = Container (e.g., "Testing Checklist")
+- **Task** = Individual checkbox item (e.g., "☐ Run tests")
+
+Use `create_tasklist_with_tasks` to create proper hierarchy.
+
+### Testing Checklist is Mandatory
+When moving to Testing list, ALWAYS create a "Testing" task list with verification steps.
+
+### Comments for Progress
+Add comments to cards as you complete major steps for transparency.
+```
+
+---
+
+### Real-World Example
+
+Here's how an AI assistant would handle the complete lifecycle:
+
+```
+User: "Create a new security issue for missing rate limiting"
+AI: → Creates card in Backlog → Security list
+    → Adds "Critical" label
+    → Returns card URL
+
+User: "Plan SEC-015"
+AI: → Reads card from Planka
+    → Analyzes codebase
+    → Writes implementation plan to card description
+    → Moves to Worklog → Planned
+    → Adds comment: "Plan created"
+
+User: "Build SEC-015"
+AI: → Reads card fresh (checks for updates)
+    → Moves to Worklog → In Progress
+    → Implements rate limiting
+    → Adds comments for each phase
+    → Moves to Worklog → Testing
+    → Creates Testing task list with 6 verification tasks
+
+User: [completes testing tasks in Planka]
+    → Checks all boxes
+    → Moves to Completed list
+    → AI updates project docs with completion date
+```
+
+---
+
+### Benefits
+
+✅ **Transparent Progress** - All stakeholders see real-time status in Planka  
+✅ **AI-Readable Context** - AI reads cards to understand current state  
+✅ **Async Collaboration** - Team can edit cards, AI syncs before working  
+✅ **Audit Trail** - Comments and task lists document the journey  
+✅ **Testing Accountability** - Explicit checklist before marking complete  
+
+---
+
 ## 🔧 Available Tools
 
 | Tool | Description |
