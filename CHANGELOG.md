@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Comment creation endpoint (was using `/comment-actions` instead of `/comments`)
 - Comment reading endpoint (was using `/actions` which returns all activity, not just comments)
 - Comment update/delete endpoints (was using `/comment-actions/:id` instead of `/comments/:id`)
+- Zod validation error for `background` field - changed from `.nullable()` to `.nullish()` to accept `undefined`
 
 ### Verified
 - All endpoints tested against Planka 2.0.0-rc.4 routes.js
