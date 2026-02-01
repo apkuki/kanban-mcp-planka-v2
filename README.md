@@ -4,6 +4,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+**📚 [AI Assistant Examples & Prompts](./AI_ASSISTANT_EXAMPLES.md)** - Ready-to-use examples for GitHub Copilot, Claude, and Gemini
+
 ## ⚠️ Version Compatibility
 
 This MCP server is specifically designed for **Planka 2.0.0-rc.4 and later versions**.
@@ -744,8 +746,8 @@ MIT License - see [LICENSE](LICENSE) file for details
 ## 📞 Support
 
 - **Issues:** [GitHub Issues](https://github.com/apkuki/kanban-mcp-planka-v2/issues)
+- **AI Assistant Examples:** [See AI_ASSISTANT_EXAMPLES.md](./AI_ASSISTANT_EXAMPLES.md) for ready-to-use prompts and workflows
 - **Planka Discord:** [Join the community](https://discord.gg/planka)
-- **Documentation:** See the [wiki](https://github.com/apkuki/kanban-mcp-planka-v2/wiki)
 
 ---
 
