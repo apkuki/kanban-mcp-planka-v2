@@ -109,8 +109,23 @@ export async function createComment(options: CreateCommentOptions) {
                 },
             },
         );
-        const parsedResponse = CommentActionResponseSchema.parse(response);
-        return parsedResponse.item;
+        
+        // Try to parse as wrapped response first
+        try {
+            const parsedResponse = CommentActionResponseSchema.parse(response);
+            return parsedResponse.item;
+        } catch (parseError) {
+            // If that fails, try parsing as direct CommentActionSchema
+            try {
+                const directParsedResponse = CommentActionSchema.parse(response);
+                return directParsedResponse;
+            } catch (directParseError) {
+                // If both parsing attempts fail, return the raw response
+                // This allows the caller to work with whatever the API returned
+                console.error("Failed to parse comment response according to schema, returning raw response:", JSON.stringify(response, null, 2));
+                return response;
+            }
+        }
     } catch (error) {
         throw new Error(
             `Failed to create comment: ${
@@ -213,8 +228,22 @@ export async function updateComment(
                 text: options.text,
             },
         });
-        const parsedResponse = CommentActionResponseSchema.parse(response);
-        return parsedResponse.item;
+        
+        // Try to parse as wrapped response first
+        try {
+            const parsedResponse = CommentActionResponseSchema.parse(response);
+            return parsedResponse.item;
+        } catch (parseError) {
+            // If that fails, try parsing as direct CommentActionSchema
+            try {
+                const directParsedResponse = CommentActionSchema.parse(response);
+                return directParsedResponse;
+            } catch (directParseError) {
+                // If both parsing attempts fail, return the raw response
+                console.error("Failed to parse comment response according to schema, returning raw response:", JSON.stringify(response, null, 2));
+                return response;
+            }
+        }
     } catch (error) {
         throw new Error(
             `Failed to update comment: ${

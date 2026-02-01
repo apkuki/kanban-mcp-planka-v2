@@ -250,11 +250,11 @@ server.tool(
     boardId: z
       .string()
       .optional()
-      .describe("The ID of the board (if moving between boards)"),
+      .describe("The ID of the target board. REQUIRED when moving cards between boards. If moving within the same board, this can be omitted."),
     projectId: z
       .string()
       .optional()
-      .describe("The ID of the project (if moving between projects)"),
+      .describe("The ID of the target project. REQUIRED when moving cards between projects. If moving within the same project, this can be omitted."),
     name: z.string().optional().describe("The name of the card"),
     type: z.enum(["project", "task"]).optional().describe("The type of the card (project or task, defaults to project)"),
     description: z.string().optional().describe("The description of the card"),
@@ -327,14 +327,14 @@ server.tool(
         break;
 
       case "move":
-        if (!args.id || !args.listId || args.position === undefined)
+        if (!args.id || !args.listId)
           throw new Error(
-            "id, listId, and position are required for move action"
+            "id and listId are required for move action. When moving cards between boards, you must also provide boardId. When moving between projects, you must also provide projectId. Use position to control where in the target list the card should be placed (defaults to end of list)."
           );
         result = await cards.moveCard(
           args.id,
           args.listId,
-          args.position,
+          args.position ?? 65535,
           args.boardId,
           args.projectId
         );

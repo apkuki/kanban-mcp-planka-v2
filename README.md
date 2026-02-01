@@ -23,6 +23,7 @@ This MCP server is specifically designed for **Planka 2.0.0-rc.4 and later versi
 - ✅ **Projects & Boards** - Full CRUD operations
 - ✅ **Lists** - Create, read, update, delete board lists
 - ✅ **Cards** - Complete card management with all metadata
+- ✅ **Card Duplication** - Clone cards with all their properties
 - ✅ **Task Lists & Tasks** - Create checklists with checkbox items
 - ✅ **Comments** - Add, update, delete card comments
 - ✅ **Labels** - Full label management with 25 color options
@@ -258,12 +259,54 @@ kanban-mcp_kanban_card_manager({
   description: "Implement new feature X"
 })
 
+// Move a card within the same board
+kanban-mcp_kanban_card_manager({
+  action: "move",
+  id: "card_id_here",
+  listId: "target_list_id",
+  position: 0  // Optional: defaults to end of list (65535)
+})
+
+// Move a card to a different board
+kanban-mcp_kanban_card_manager({
+  action: "move",
+  id: "card_id_here",
+  listId: "target_list_id",
+  boardId: "target_board_id",  // REQUIRED when moving between boards
+  position: 0  // Optional
+})
+
+// Move a card to a different project
+kanban-mcp_kanban_card_manager({
+  action: "move",
+  id: "card_id_here",
+  listId: "target_list_id",
+  boardId: "target_board_id",  // REQUIRED
+  projectId: "target_project_id",  // REQUIRED when moving between projects
+  position: 0  // Optional
+})
+
 // Get card details with related data
 kanban-mcp_kanban_card_manager({
   action: "get_details",
   cardId: "card_id_here"
 })
 ```
+
+#### ⚠️ Important: Moving Cards Between Boards and Lists
+
+When moving cards, the required parameters depend on the scope of the move:
+
+| Move Scope | Required Parameters | Optional |
+|------------|-------------------|----------|
+| **Within same board** | `id`, `listId` | `position` |
+| **Between boards** | `id`, `listId`, `boardId` | `position` |
+| **Between projects** | `id`, `listId`, `boardId`, `projectId` | `position` |
+
+**Common mistakes to avoid:**
+- ❌ Forgetting `boardId` when moving cards between boards
+- ❌ Forgetting `projectId` when moving cards between projects  
+- ❌ Assuming `position` is required (it defaults to end of list)
 
 ### Labels
 
@@ -708,13 +751,28 @@ MIT License - see [LICENSE](LICENSE) file for details
 
 ## 🗺️ Roadmap
 
-- [ ] Add attachment support (file uploads)
-- [ ] Add custom fields support
-- [ ] Add card duplication
-- [ ] Add notification management
-- [ ] Improve error handling and retries
-- [ ] Add rate limiting for API calls
-- [ ] Add caching layer for performance
+### Completed But Missing from Features List
+- [x] **Card duplication** - Already implemented via `duplicate` action
+
+### In Progress / Partially Implemented
+- [ ] **Attachment support** - Schema exists, operations needed (upload, download, delete)
+
+### Planned Features
+- [ ] **Custom fields support** - Extend cards with user-defined fields
+- [ ] **Notification management** - Subscribe to and manage Planka notifications
+- [ ] **Card memberships** - Assign users to specific cards (schema exists: `PlankaCardMembershipSchema`)
+- [ ] **Project memberships** - Manage project-level user access (schema exists: `PlankaProjectMembershipSchema`)
+
+### Technical Improvements
+- [ ] **Improve error handling and retries** - Better resilience for network issues
+- [ ] **Add rate limiting for API calls** - Prevent overwhelming Planka instance
+- [ ] **Add caching layer for performance** - Cache frequently accessed data
+- [ ] **Implement pagination helpers** - Easier handling of large result sets
+
+### Nice to Have
+- [ ] **Bulk operations** - Move multiple cards, bulk label assignments
+- [ ] **Card templates** - Predefined card structures with checklists
+- [ ] **Board cloning** - Duplicate entire boards with all contents
 
 ---
 

@@ -62,11 +62,27 @@ export const UpdateCardSchema = z.object({
     ),
 });
 
+/**
+ * Schema for moving a card to a different list
+ * 
+ * IMPORTANT: When moving cards between boards or projects:
+ * - Moving within same board: Provide id, listId, and optionally position
+ * - Moving between boards: Provide id, listId, boardId, and optionally position
+ * - Moving between projects: Provide id, listId, boardId, projectId, and optionally position
+ * 
+ * @property {string} id - The ID of the card to move
+ * @property {string} listId - The ID of the target list (REQUIRED)
+ * @property {string} [boardId] - The ID of the target board (REQUIRED when moving between boards)
+ * @property {string} [projectId] - The ID of the target project (REQUIRED when moving between projects)
+ * @property {number} [position] - Position in the target list (default: 65535, which places it at the end)
+ */
 export const MoveCardSchema = z.object({
     id: z.string().describe("Card ID"),
-    listId: z.string().describe("Target list ID"),
+    listId: z.string().describe("Target list ID - REQUIRED for all moves"),
+    boardId: z.string().optional().describe("Target board ID - REQUIRED when moving between boards"),
+    projectId: z.string().optional().describe("Target project ID - REQUIRED when moving between projects"),
     position: z.number().optional().describe(
-        "Card position in the target list (default: 65535)",
+        "Card position in the target list (default: 65535, which places at end)",
     ),
 });
 
@@ -280,14 +296,29 @@ export async function updateCard(
 }
 
 /**
- * Moves a card to a different list or position
- *
+ * Moves a card to a different list (and optionally to a different board/project)
+ * 
+ * **MOVING CARDS - REQUIREMENTS:**
+ * 
+ * 1. **Moving within the same board:**
+ *    - Required: cardId, listId
+ *    - Optional: position
+ * 
+ * 2. **Moving between boards (within same project):**
+ *    - Required: cardId, listId, boardId
+ *    - Optional: position
+ * 
+ * 3. **Moving between projects:**
+ *    - Required: cardId, listId, boardId, projectId
+ *    - Optional: position
+ * 
  * @param {string} cardId - The ID of the card to move
- * @param {string} listId - The ID of the list to move the card to
- * @param {number} [position=65535] - The position in the target list
- * @param {string} [boardId] - The ID of the board (if moving between boards)
- * @param {string} [projectId] - The ID of the project (if moving between projects)
+ * @param {string} listId - The ID of the target list (REQUIRED)
+ * @param {number} [position=65535] - The position in the target list (defaults to end)
+ * @param {string} [boardId] - The ID of the target board (REQUIRED when moving between boards)
+ * @param {string} [projectId] - The ID of the target project (REQUIRED when moving between projects)
  * @returns {Promise<object>} The moved card
+ * @throws {Error} If the move operation fails
  */
 export async function moveCard(
     cardId: string,
