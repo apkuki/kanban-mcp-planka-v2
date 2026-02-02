@@ -2,10 +2,10 @@ import { z } from "zod";
 import { getCard } from "../operations/cards.js";
 import { getTasks } from "../operations/tasks.js";
 import { getComments } from "../operations/comments.js";
-import { getLabels } from "../operations/labels.js";
 import { getProjects } from "../operations/projects.js";
 import { getBoards } from "../operations/boards.js";
 import { getLists } from "../operations/lists.js";
+import { plankaRequest } from "../common/utils.js";
 
 /**
  * Zod schema for the getCardDetails function parameters
@@ -84,12 +84,22 @@ export async function getCardDetails(params: GetCardDetailsParams) {
             throw new Error(`Could not determine board ID for card ${cardId}`);
         }
 
-        const labels = await getLabels(boardId);
-
-        // Filter to just the labels assigned to this card
-        // Note: We need to get the labelIds from the card's data
-        // This might require additional API calls or data structure knowledge
-        // For now, we'll return all labels for the board
+        // Get the board details which includes cardLabels in the included property
+        const boardResponse = await plankaRequest(`/api/boards/${boardId}`) as any;
+        
+        // Extract all labels and cardLabels from the board response
+        const allLabels = boardResponse?.included?.labels || [];
+        const cardLabels = boardResponse?.included?.cardLabels || [];
+        
+        // Filter to only the labelIds that are assigned to this specific card
+        const assignedLabelIds = cardLabels
+            .filter((cl: any) => cl.cardId === cardId)
+            .map((cl: any) => cl.labelId);
+        
+        // Filter labels to only those assigned to this card
+        const labels = allLabels.filter((label: any) => 
+            assignedLabelIds.includes(label.id)
+        );
 
         // Calculate task completion percentage
         const completedTasks = tasks.filter((task: any) =>
