@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] - 2026-02-18
+
+### Added
+- API key authentication support for Planka 2.0.1+
+- New environment variable `PLANKA_AGENT_KEY` for API key authentication
+- API key authentication now takes precedence over email/password method
+- Updated README with comprehensive authentication documentation for both methods
+
+### Changed
+- Authentication now uses `X-Api-Key` header when API key is provided
+- Falls back to Bearer token authentication when using email/password
+
 ## [2.0.1] - 2026-02-02
 
 ### Fixed
