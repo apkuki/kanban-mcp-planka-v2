@@ -72,6 +72,22 @@ This MCP server is specifically designed for **Planka 2.0.0-rc.4 and later versi
          "args": ["/absolute/path/to/kanban-mcp-planka-v2/dist/index.js"],
          "env": {
            "PLANKA_BASE_URL": "http://localhost:3333",
+           "PLANKA_AGENT_KEY": "your-api-key-from-planka"
+         }
+       }
+     }
+   }
+   ```
+   
+   **Alternative: Email/Password Authentication**:
+   ```json
+   {
+     "mcpServers": {
+       "kanban-planka-v2": {
+         "command": "node",
+         "args": ["/absolute/path/to/kanban-mcp-planka-v2/dist/index.js"],
+         "env": {
+           "PLANKA_BASE_URL": "http://localhost:3333",
            "PLANKA_AGENT_EMAIL": "your-email@example.com",
            "PLANKA_AGENT_PASSWORD": "your-password"
          }
@@ -83,7 +99,8 @@ This MCP server is specifically designed for **Planka 2.0.0-rc.4 and later versi
    **Replace values:**
    - Path: Your actual path to the `dist/index.js` file
    - URL: `http://localhost:3333` for local Planka, or your server URL (e.g., `https://planka.yourcompany.com`)
-   - Email/Password: Credentials of an existing Planka user
+   - API Key: Generate in Planka User Settings → API Key (recommended for v2.0.1+)
+   - OR Email/Password: Credentials of an existing Planka user (legacy method)
 
    For **Cursor** (`.cursor/mcp.json` or global settings):
    ```json
@@ -94,8 +111,7 @@ This MCP server is specifically designed for **Planka 2.0.0-rc.4 and later versi
          "args": ["/absolute/path/to/kanban-mcp-planka-v2/dist/index.js"],
          "env": {
            "PLANKA_BASE_URL": "http://localhost:3333",
-           "PLANKA_AGENT_EMAIL": "your-email@example.com",
-           "PLANKA_AGENT_PASSWORD": "your-password"
+           "PLANKA_AGENT_KEY": "your-api-key-from-planka"
          }
        }
      }
@@ -113,8 +129,7 @@ This MCP server is specifically designed for **Planka 2.0.0-rc.4 and later versi
          "args": ["/absolute/path/to/kanban-mcp-planka-v2/dist/index.js"],
          "env": {
            "PLANKA_BASE_URL": "http://localhost:3333",
-           "PLANKA_AGENT_EMAIL": "your-email@example.com",
-           "PLANKA_AGENT_PASSWORD": "your-password"
+           "PLANKA_AGENT_KEY": "your-api-key-from-planka"
          }
        }
      }
@@ -202,10 +217,23 @@ This MCP server is specifically designed for **Planka 2.0.0-rc.4 and later versi
 
 ### 🔑 Authentication Notes
 
-- **PLANKA_BASE_URL**: The base URL of your Planka instance (no trailing slash)
-- **PLANKA_AGENT_EMAIL**: Email of a Planka user (must exist in Planka)
-- **PLANKA_AGENT_PASSWORD**: Password for that user
-- The MCP server logs in as this user and performs all operations on their behalf
+**Authentication Methods:**
+
+Planka 2.0.1+ supports two authentication methods:
+
+1. **API Key Authentication (Recommended for 2.0.1+)**:
+   - **PLANKA_BASE_URL**: The base URL of your Planka instance (no trailing slash)
+   - **PLANKA_AGENT_KEY**: Your API key from Planka user settings
+   - More secure and simpler setup
+   - Generate your API key in Planka: User Settings → API Key
+
+2. **Email/Password Authentication (Legacy)**:
+   - **PLANKA_BASE_URL**: The base URL of your Planka instance (no trailing slash)
+   - **PLANKA_AGENT_EMAIL**: Email of a Planka user (must exist in Planka)
+   - **PLANKA_AGENT_PASSWORD**: Password for that user
+   - The MCP server logs in as this user and performs all operations on their behalf
+
+**Note:** API key authentication takes precedence if both are configured.
 
 ---
 

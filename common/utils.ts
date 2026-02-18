@@ -4,6 +4,7 @@ import { VERSION } from "./version.js";
 
 // Global variables to store tokens
 let agentToken: string | null = null;
+let apiKey: string | null = null;
 
 type RequestOptions = {
   method?: string;
@@ -37,12 +38,20 @@ const USER_AGENT =
   `modelcontextprotocol/servers/planka/v${VERSION} ${getUserAgent()}`;
 
 async function authenticateAgent(): Promise<string> {
+  // Check if API key is provided
+  const envApiKey = process.env.PLANKA_AGENT_KEY;
+  if (envApiKey) {
+    apiKey = envApiKey;
+    return envApiKey;
+  }
+
+  // Fall back to email/password authentication
   const email = process.env.PLANKA_AGENT_EMAIL;
   const password = process.env.PLANKA_AGENT_PASSWORD;
 
   if (!email || !password) {
     throw new Error(
-      "PLANKA_AGENT_EMAIL and PLANKA_AGENT_PASSWORD environment variables are required",
+      "Either PLANKA_AGENT_KEY or both PLANKA_AGENT_EMAIL and PLANKA_AGENT_PASSWORD environment variables are required",
     );
   }
 
@@ -123,11 +132,16 @@ export async function plankaRequest(
     delete headers["Content-Type"];
   }
 
-  // Add authentication token if not skipped
+  // Add authentication if not skipped
   if (!options.skipAuth) {
     try {
       const token = await getAuthToken();
-      headers["Authorization"] = `Bearer ${token}`;
+      // Use X-Api-Key header if API key is set, otherwise use Bearer token
+      if (apiKey) {
+        headers["X-Api-Key"] = token;
+      } else {
+        headers["Authorization"] = `Bearer ${token}`;
+      }
     } catch (error: unknown) {
       const errorMessage = error instanceof Error
         ? error.message
