@@ -165,8 +165,11 @@ export async function getComments(cardId: string) {
             );
         }
     } catch (error) {
-        // If all else fails, return an empty array
-        return [];
+        throw new Error(
+            `Failed to get comments: ${
+                error instanceof Error ? error.message : String(error)
+            }`,
+        );
     }
 }
 
