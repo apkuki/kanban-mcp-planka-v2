@@ -91,7 +91,7 @@ export async function createList(options: CreateListOptions) {
                 method: "POST",
                 body: {
                     name: options.name,
-                    position: options.position,
+                    position: options.position ?? 65535,
                 },
             },
         );
