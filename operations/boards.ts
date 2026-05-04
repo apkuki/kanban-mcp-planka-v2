@@ -81,12 +81,12 @@ export type UpdateBoardOptions = z.infer<typeof UpdateBoardSchema>;
 // Response schemas
 const BoardsResponseSchema = z.object({
     items: z.array(PlankaBoardSchema),
-    included: z.record(z.any()).optional(),
+    included: z.record(z.string(), z.any()).optional(),
 });
 
 const BoardResponseSchema = z.object({
     item: PlankaBoardSchema,
-    included: z.record(z.any()).optional(),
+    included: z.record(z.string(), z.any()).optional(),
 });
 
 // Function implementations
@@ -324,3 +324,4 @@ export async function deleteBoard(id: string) {
     });
     return { success: true };
 }
+

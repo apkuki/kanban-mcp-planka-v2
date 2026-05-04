@@ -72,12 +72,12 @@ export type UpdateProjectOptions = z.infer<typeof UpdateProjectSchema>;
 // Response schemas
 const ProjectsResponseSchema = z.object({
     items: z.array(PlankaProjectSchema),
-    included: z.record(z.any()).optional(),
+    included: z.record(z.string(), z.any()).optional(),
 });
 
 const ProjectResponseSchema = z.object({
     item: PlankaProjectSchema,
-    included: z.record(z.any()).optional(),
+    included: z.record(z.string(), z.any()).optional(),
 });
 
 /**
@@ -140,3 +140,4 @@ export async function getProject(id: string) {
         );
     }
 }
+

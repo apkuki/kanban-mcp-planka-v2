@@ -131,12 +131,12 @@ export type ResetCardStopwatchOptions = z.infer<
 // Response schemas
 const CardsResponseSchema = z.object({
     items: z.array(PlankaCardSchema),
-    included: z.record(z.any()).optional(),
+    included: z.record(z.string(), z.any()).optional(),
 });
 
 const CardResponseSchema = z.object({
     item: PlankaCardSchema,
-    included: z.record(z.any()).optional(),
+    included: z.record(z.string(), z.any()).optional(),
 });
 
 // Function implementations
@@ -591,3 +591,4 @@ function formatDuration(seconds: number): string {
 
     return result.trim();
 }
+

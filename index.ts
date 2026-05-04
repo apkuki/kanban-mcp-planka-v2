@@ -22,6 +22,8 @@ import {
 
 import { VERSION } from "./common/version.js";
 
+type McpToolResult = Promise<{ content: Array<{ type: "text"; text: string }> }>;
+
 const server = new McpServer(
   {
     name: "planka-mcp-server",
@@ -78,7 +80,7 @@ server.tool(
       .default(false)
       .describe("Whether to include comments for each card"),
   },
-  async (args) => {
+  async (args): McpToolResult => {
     let result;
 
     switch (args.action) {
@@ -173,7 +175,7 @@ server.tool(
     name: z.string().optional().describe("The name of the list"),
     position: z.number().optional().describe("The position of the list"),
   },
-  async (args) => {
+  async (args): McpToolResult => {
     let result;
 
     switch (args.action) {
@@ -282,7 +284,7 @@ server.tool(
       .optional()
       .describe("The ID of the card to get details for"),
   },
-  async (args) => {
+  async (args): McpToolResult => {
     let result;
 
     switch (args.action) {
@@ -395,7 +397,7 @@ server.tool(
       .describe("The action to perform"),
     id: z.string().describe("The ID of the card"),
   },
-  async (args) => {
+  async (args): McpToolResult => {
     let result;
 
     switch (args.action) {
@@ -480,7 +482,7 @@ server.tool(
       .describe("The color of the label"),
     position: z.number().optional().describe("The position of the label"),
   },
-  async (args) => {
+  async (args): McpToolResult => {
     let result;
 
     switch (args.action) {
@@ -593,7 +595,7 @@ server.tool(
       .optional()
       .describe("Array of tasks to create"),
   },
-  async (args) => {
+  async (args): McpToolResult => {
     let result;
 
     switch (args.action) {
@@ -680,7 +682,7 @@ server.tool(
     cardId: z.string().optional().describe("The ID of the card"),
     text: z.string().optional().describe("The text content of the comment"),
   },
-  async (args) => {
+  async (args): McpToolResult => {
     let result;
 
     switch (args.action) {
@@ -748,7 +750,7 @@ server.tool(
       .optional()
       .describe("Whether the user can comment on the board"),
   },
-  async (args) => {
+  async (args): McpToolResult => {
     let result;
 
     switch (args.action) {
