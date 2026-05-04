@@ -26,7 +26,7 @@
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --testMatch='**/tests/**/*.test.ts'"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "1.6.1",
+    "@modelcontextprotocol/sdk": "^1.29.0",
     "@types/node": "^22",
     "@types/node-fetch": "^2.6.12",
     "node-fetch": "^3.3.2",
